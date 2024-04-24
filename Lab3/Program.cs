@@ -82,41 +82,82 @@
     {
         static void Main(string[] args)
         {
-            int matrixSize = 1000;
-            int[,] matrix1 = GenerateRandomMatrix(matrixSize, matrixSize);
-            int[,] matrix2 = GenerateRandomMatrix(matrixSize, matrixSize);
-            //Console.WriteLine("Matrix 1:");
-            //PrintMatrix(matrix1);
-            //Console.WriteLine("Matrix 2:");
-            //PrintMatrix(matrix2);
-
             int numThreads = 4;
+            int repeats = 100;
+            Random random = new Random(0);
+            String fileName = "PC.txt";
 
-            MatrixMultiplier matrixMultiplier = new MatrixMultiplier(matrix1, matrix2, numThreads);
-            
-            // Threads
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            int[,] result = matrixMultiplier.Multiply();
-            stopwatch.Stop();
+            int[,] matrix1;
+            int[,] matrix2;
+            int[,] result;
+            Stopwatch stopwatch;
+            TimeSpan timeElapsed;
+            MatrixMultiplier matrixMultiplier;
 
-            TimeSpan timeElapsed = stopwatch.Elapsed;
-            Console.WriteLine($"Time taken to multiply matrices with Threads: {timeElapsed.TotalMilliseconds} milliseconds");
+            int[] sizes = { 100, 200, 500, 1000 };
+            List<double> forTimes = new List<double>();
+            List<double> parallelForTimes = new List<double>();
 
-            // Parallel.For
-            stopwatch = Stopwatch.StartNew();
-            result = matrixMultiplier.Multiply();
-            stopwatch.Stop();
+            foreach (int size in sizes)
+            {
+                matrix1 = GenerateRandomMatrix(size, size, random);
+                matrix2 = GenerateRandomMatrix(size, size, random);
+                matrixMultiplier = new MatrixMultiplier(matrix1, matrix2, numThreads);
 
-            timeElapsed = stopwatch.Elapsed;
-            Console.WriteLine($"Time taken to multiply matrices with Parallel.For: {timeElapsed.TotalMilliseconds} milliseconds");
+                // Threads
+                timeElapsed = new TimeSpan(0);
+                for (int i = 0; i < repeats; i++)
+                {
+                    stopwatch = Stopwatch.StartNew();
+                    result = matrixMultiplier.Multiply();
+                    stopwatch.Stop();
 
-            //Console.WriteLine("Resulting Matrix:");
-            //PrintMatrix(result);
+                    timeElapsed += stopwatch.Elapsed;
+                }
+                forTimes.Add(timeElapsed.TotalMilliseconds / repeats);
+
+                // Parallel.For
+                timeElapsed = new TimeSpan(0);
+                for (int i = 0; i < repeats; i++)
+                {
+                    stopwatch = Stopwatch.StartNew();
+                    result = matrixMultiplier.ParallelMultiply();
+                    stopwatch.Stop();
+
+                    timeElapsed += stopwatch.Elapsed;
+                }
+                parallelForTimes.Add(timeElapsed.TotalMilliseconds / repeats);
+                
+            }
+
+            StringWriter writer = new StringWriter();
+            writer.WriteLine("Average time taken to multiply matrices with Threads:");
+            for (int i = 0; i < forTimes.Count; i++)
+            {
+                writer.WriteLine($"Size: {sizes[i]}, Time: {forTimes[i]} milliseconds");
+            }
+            writer.WriteLine($"Average time taken to multiply matrices with Parallel.For:");
+            for (int i = 0; i < parallelForTimes.Count; i++)
+            {
+                writer.WriteLine($"Size: {sizes[i]}, Time: {parallelForTimes[i]} milliseconds");
+            }
+            File.WriteAllText(fileName, writer.ToString());
+
+            Console.WriteLine("Average time taken to multiply matrices with Threads:");
+            for (int i = 0; i < forTimes.Count; i++)
+            {
+                Console.WriteLine($"Size: {sizes[i]}, Time: {forTimes[i]} milliseconds");
+            }
+            Console.WriteLine($"Average time taken to multiply matrices with Parallel.For:");
+            for (int i = 0; i < parallelForTimes.Count; i++)
+            {
+                Console.WriteLine($"Size: {sizes[i]}, Time: {parallelForTimes[i]} milliseconds");
+            }
+
         }
 
-        static int[,] GenerateRandomMatrix(int rows, int cols)
+        static int[,] GenerateRandomMatrix(int rows, int cols, Random random)
         {
-            Random random = new Random();
             int[,] matrix = new int[rows, cols];
             for (int i = 0; i < rows; i++)
             {
