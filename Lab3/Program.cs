@@ -85,7 +85,7 @@
             int numThreads = 4;
             int repeats = 100;
             Random random = new Random(0);
-            String fileName = "PC.txt";
+            String fileName = "PC_4.txt";
 
             int[,] matrix1;
             int[,] matrix2;
@@ -131,6 +131,7 @@
             }
 
             StringWriter writer = new StringWriter();
+            writer.WriteLine($"Thread count: {numThreads}, Repeats: {repeats}");
             writer.WriteLine("Average time taken to multiply matrices with Threads:");
             for (int i = 0; i < forTimes.Count; i++)
             {
@@ -142,7 +143,8 @@
                 writer.WriteLine($"Size: {sizes[i]}, Time: {parallelForTimes[i]} milliseconds");
             }
             File.WriteAllText(fileName, writer.ToString());
-
+            writer.Close();
+            Console.WriteLine($"Thread count: {numThreads}, Repeats: {repeats}");
             Console.WriteLine("Average time taken to multiply matrices with Threads:");
             for (int i = 0; i < forTimes.Count; i++)
             {
