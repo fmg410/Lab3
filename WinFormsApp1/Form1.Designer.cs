@@ -113,10 +113,6 @@
             mirrorPictureBox.TabIndex = 6;
             mirrorPictureBox.TabStop = false;
             // 
-            // openFileDialog1
-            // 
-            openFileDialog1.FileName = "openFileDialog1";
-            // 
             // label1
             // 
             label1.AutoSize = true;
