@@ -24,13 +24,17 @@
 
         public int[,] Multiply()
         {
-            Thread[] threads = new Thread[numThreads];
             int rowsPerThread = result.GetLength(0) / numThreads;
+            int iterations = Math.Min(numThreads, result.GetLength(0));
+            Thread[] threads = new Thread[iterations];
 
-            for (int i = 0; i < numThreads; i++)
+            if (rowsPerThread == 0)
+                rowsPerThread = 1;
+
+            for (int i = 0; i < iterations; i++)
             {
                 int startRow = i * rowsPerThread;
-                int endRow = (i == numThreads - 1) ? result.GetLength(0) : (i + 1) * rowsPerThread;
+                int endRow = (i == iterations - 1) ? result.GetLength(0) : (i + 1) * rowsPerThread;
 
                 threads[i] = new Thread(() => MultiplyRows(startRow, endRow));
                 threads[i].Start();
